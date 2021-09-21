@@ -573,12 +573,9 @@ RUN \
     # Install some basics - required to run container
     conda install -y --update-all \
             'python='$PYTHON_VERSION \
-            # 'ipython=7.19.*' \
-            # 'notebook=6.1.6' \
-            # 'jupyterlab=2.2.*' \
-            'ipython' \
-            'notebook' \
-            'jupyterlab' \
+            'ipython=7.24.*' \
+            'notebook=6.4.*' \
+            'jupyterlab=3.0.*' \
             # TODO: nbconvert 6.x makes problems with template_path
             'nbconvert=5.6.*' \
             # TODO: temp fix: yarl version 1.5 is required for lots of libraries.
@@ -684,63 +681,62 @@ COPY resources/jupyter/jupyter_notebook_config.json /etc/jupyter/
 RUN \
     # Create empty notebook configuration
     mkdir -p $HOME/.jupyter/nbconfig/ && \
-    # mkdir -p $HOME/.jupyter/nbconfig/ && \
-    # printf "{\"load_extensions\": {}}" > $HOME/.jupyter/nbconfig/notebook.json && \
-    # # Activate and configure extensions
-    # jupyter contrib nbextension install --sys-prefix && \
-    # # nbextensions configurator
-    # jupyter nbextensions_configurator enable --sys-prefix && \
-    # # Configure nbdime
-    # nbdime config-git --enable --global && \
-    # # Active nbresuse
-    # jupyter serverextension enable --py nbresuse --sys-prefix && \
-    # # Activate Jupytext
-    # jupyter nbextension enable --py jupytext --sys-prefix && \
-    # # Enable useful extensions
-    # jupyter nbextension enable skip-traceback/main --sys-prefix && \
-    # # jupyter nbextension enable comment-uncomment/main && \
-    # jupyter nbextension enable toc2/main --sys-prefix && \
-    # jupyter nbextension enable execute_time/ExecuteTime --sys-prefix && \
-    # jupyter nbextension enable collapsible_headings/main --sys-prefix && \
-    # jupyter nbextension enable codefolding/main --sys-prefix && \
-    # # Install and activate Jupyter Tensorboard
-    # pip install --no-cache-dir git+https://github.com/InfuseAI/jupyter_tensorboard.git && \
-    # jupyter tensorboard enable --sys-prefix && \
-    # # TODO moved to configuration files = resources/jupyter/nbconfig Edit notebook config
-    # # echo '{"nbext_hide_incompat": false}' > $HOME/.jupyter/nbconfig/common.json && \
-    # cat $HOME/.jupyter/nbconfig/notebook.json | jq '.toc2={"moveMenuLeft": false,"widenNotebook": false,"skip_h1_title": false,"sideBar": true,"number_sections": false,"collapse_to_match_collapsible_headings": true}' > tmp.$$.json && mv tmp.$$.json $HOME/.jupyter/nbconfig/notebook.json && \
-    # # If minimal flavor - exit here
-    # if [ "$WORKSPACE_FLAVOR" = "minimal" ]; then \
-    #     # Cleanup
-    #     clean-layer.sh && \
-    #     exit 0 ; \
-    # fi && \
-    # # TODO: Not installed. Disable Jupyter Server Proxy
-    # # jupyter nbextension disable jupyter_server_proxy/tree --sys-prefix && \
-    # # Install jupyter black
-    # jupyter nbextension install https://github.com/drillan/jupyter-black/archive/master.zip --sys-prefix && \
-    # jupyter nbextension enable jupyter-black-master/jupyter-black --sys-prefix && \
-    # # If light flavor - exit here
-    # if [ "$WORKSPACE_FLAVOR" = "light" ]; then \
-    #     # Cleanup
-    #     clean-layer.sh && \
-    #     exit 0 ; \
-    # fi && \
-    # # Install and activate what if tool 
-    # pip install witwidget && \
-    # jupyter nbextension install --py --symlink --sys-prefix witwidget && \
-    # jupyter nbextension enable --py --sys-prefix witwidget && \
-    # # Activate qgrid
-    # jupyter nbextension enable --py --sys-prefix qgrid && \
-    # # TODO: Activate Colab support
-    # # jupyter serverextension enable --py jupyter_http_over_ws && \
-    # # Activate Voila Rendering
-    # # currently not working jupyter serverextension enable voila --sys-prefix && \
-    # # Enable ipclusters
-    # ipcluster nbextension enable && \
-    # # Fix permissions? fix-permissions.sh $CONDA_ROOT && \
-    # # Cleanup
-    # clean-layer.sh
+    printf "{\"load_extensions\": {}}" > $HOME/.jupyter/nbconfig/notebook.json && \
+    # Activate and configure extensions
+    jupyter contrib nbextension install --sys-prefix && \
+    # nbextensions configurator
+    jupyter nbextensions_configurator enable --sys-prefix && \
+    # Configure nbdime
+    nbdime config-git --enable --global && \
+    # Activate Jupytext
+    jupyter nbextension enable --py jupytext --sys-prefix && \
+    # Enable useful extensions
+    jupyter nbextension enable skip-traceback/main --sys-prefix && \
+    # jupyter nbextension enable comment-uncomment/main && \
+    jupyter nbextension enable toc2/main --sys-prefix && \
+    jupyter nbextension enable execute_time/ExecuteTime --sys-prefix && \
+    jupyter nbextension enable collapsible_headings/main --sys-prefix && \
+    jupyter nbextension enable codefolding/main --sys-prefix && \
+    # Disable pydeck extension, cannot be loaded (404)
+    jupyter nbextension disable pydeck/extension && \
+    # Install and activate Jupyter Tensorboard
+    pip install --no-cache-dir git+https://github.com/InfuseAI/jupyter_tensorboard.git && \
+    jupyter tensorboard enable --sys-prefix && \
+    # TODO moved to configuration files = resources/jupyter/nbconfig Edit notebook config
+    # echo '{"nbext_hide_incompat": false}' > $HOME/.jupyter/nbconfig/common.json && \
+    cat $HOME/.jupyter/nbconfig/notebook.json | jq '.toc2={"moveMenuLeft": false,"widenNotebook": false,"skip_h1_title": false,"sideBar": true,"number_sections": false,"collapse_to_match_collapsible_headings": true}' > tmp.$$.json && mv tmp.$$.json $HOME/.jupyter/nbconfig/notebook.json && \
+    # If minimal flavor - exit here
+    if [ "$WORKSPACE_FLAVOR" = "minimal" ]; then \
+        # Cleanup
+        clean-layer.sh && \
+        exit 0 ; \
+    fi && \
+    # TODO: Not installed. Disable Jupyter Server Proxy
+    # jupyter nbextension disable jupyter_server_proxy/tree --sys-prefix && \
+    # Install jupyter black
+    jupyter nbextension install https://github.com/drillan/jupyter-black/archive/master.zip --sys-prefix && \
+    jupyter nbextension enable jupyter-black-master/jupyter-black --sys-prefix && \
+    # If light flavor - exit here
+    if [ "$WORKSPACE_FLAVOR" = "light" ]; then \
+        # Cleanup
+        clean-layer.sh && \
+        exit 0 ; \
+    fi && \
+    # Install and activate what if tool
+    pip install witwidget && \
+    jupyter nbextension install --py --symlink --sys-prefix witwidget && \
+    jupyter nbextension enable --py --sys-prefix witwidget && \
+    # Activate qgrid
+    jupyter nbextension enable --py --sys-prefix qgrid && \
+    # TODO: Activate Colab support
+    # jupyter serverextension enable --py jupyter_http_over_ws && \
+    # Activate Voila Rendering
+    # currently not working jupyter serverextension enable voila --sys-prefix && \
+    # Enable ipclusters
+    ipcluster nbextension enable && \
+    # Fix permissions? fix-permissions.sh $CONDA_ROOT && \
+    # Cleanup
+    clean-layer.sh
 
 # install jupyterlab
 RUN \

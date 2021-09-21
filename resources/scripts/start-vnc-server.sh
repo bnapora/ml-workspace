@@ -25,8 +25,6 @@ chmod 600 $HOME/.vnc/passwd
 
 config_file=$HOME/.vnc/config
 touch $config_file
-# printf "geometry=$VNC_RESOLUTION\ndepth=$VNC_COL_DEPTH\ndesktop=Desktop-GUI" > ~/.vnc/config
-# Fix for VNC not starting suggested @ https://github.com/ml-tooling/ml-workspace/issues/85
 printf "geometry=$VNC_RESOLUTION\ndepth=$VNC_COL_DEPTH\ndesktop=Desktop-GUI\nsession=xfce" > ~/.vnc/config
 command="/usr/libexec/vncserver $DISPLAY"
 
