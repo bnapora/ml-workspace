@@ -2,9 +2,12 @@
  docker build --build-arg ARG_WORKSPACE_FLAVOR=minimal -t gs-mlworkspace-min -f Dockerfile . 
 
  docker build -t gs-mlworkspace-min-gpu -f gpu-flavor/Dockerfile.min.gpu .
+ or full GPU (Ubuntu 20.04)
+ docker build -t gs-mlworkspace-gpu -f gpu-flavor/Dockerfile.gpu .
 
  docker build -t gs-mlworkspace-min-gpu-wsi -f Dockerfile.wsi .
-
+ or full GPU (ubuntu 20.04)
+ docker build -t gs-mlworkspace-gpu-wsi -f Dockerfile.wsi .
  # Run Scripts
  docker run -d -p 8083:8080 --name "bn-mlworkspace-min01" -v "ml-workspace:/workspace" -v "D:\:/host_Data" -v "/var/run/docker.sock:/var/run/docker.sock" --restart always gs-mlworkspace-min:latest
 
