@@ -1,5 +1,9 @@
 # Build Scripts
+- follow order of build to create minimal GPU container for jupyter (04/07/22)
+
+- had issue with minimal build (had to change Dockerfile.min.gpu to pull from mltooling docker hub repo)
  docker build --build-arg ARG_WORKSPACE_FLAVOR=minimal -t gs-mlworkspace-min -f Dockerfile . 
+docker build -t gs-mlworkspace-test -f Dockerfile . 
 
  docker build -t gs-mlworkspace-min-gpu -f gpu-flavor/Dockerfile.min.gpu .
  or full GPU (Ubuntu 20.04)
