@@ -16,12 +16,14 @@
 ### mlworkspace-min-gpu - Size=10.2GB
     Docker Build Command:  
      docker build -t gs-mlworkspace-min-gpu -f gpu-flavor/Dockerfile.min.gpu . 
+     docker build -t mltooling-gpu-lite -f gpu-flavor/Dockerfile.min.gpu .
     Docker Run Command:  
      docker run -d -p 8084:8080 --env NVIDIA_DISABLE_REQUIRE=1 --gpus all --name "[Container Name]" -v "[Volume Name]:/workspace" -v "D:\:/host_Data" -v "/var/run/docker.sock:/var/run/docker.sock" --restart always gestaltmldev.azurecr.io/gs-mlworkspace-min-gpu:latest
 
 ### mlworkspace-min-gpu-wsi - Size=16.1 GB
     Docker Build Command:  
      docker build -t gs-mlworkspace-min-gpu-wsi -f Dockerfile.wsi 
+     docker build -t 
     Docker Run Command:  
      docker run -d -p 8084:8080 --env NVIDIA_DISABLE_REQUIRE=1 --gpus all --name "[Container Name]" -v "[Volume Name]:/workspace" -v "D:\:/host_Data" -v "/var/run/docker.sock:/var/run/docker.sock" --restart always gs-mlworkspace-min-gpu-wsi:latest  
 

@@ -2,7 +2,8 @@
 ARG ARG_WORKSPACE_BASE_IMAGE="mltooling/ml-workspace-minimal:latest"
 # Build from full flavor of workspace with same version
 # FROM $ARG_WORKSPACE_BASE_IMAGE
-FROM gs-mlworkspace-min:latest
+# FROM gs-mlworkspace-min:latest  (Had issue creating the minimual build from scratch 04/07/22)
+FROM mltooling/ml-workspace-minimal:latest
 
 ARG ARG_WORKSPACE_FLAVOR="gpu"
 ENV WORKSPACE_FLAVOR=$ARG_WORKSPACE_FLAVOR
