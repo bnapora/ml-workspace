@@ -1,0 +1,133 @@
+FROM mltooling/ml-workspace-gpu:latest
+
+ARG ARG_WORKSPACE_FLAVOR="wsi"
+ENV WORKSPACE_FLAVOR=$ARG_WORKSPACE_FLAVOR
+
+USER root
+
+ENV \
+    HOME="/root"  \
+    RESOURCES_PATH="/resources" \
+    WORKSPACE_HOME="/workspace"
+
+WORKDIR $HOME
+
+# # Make folders
+# RUN \
+#     mkdir $RESOURCES_PATH && chmod a+rwx $RESOURCES_PATH && \
+#     mkdir $WORKSPACE_HOME && chmod a+rwx $WORKSPACE_HOME && \
+#     mkdir $SSL_RESOURCES_PATH && chmod a+rwx $SSL_RESOURCES_PATH
+
+# Layer cleanup script
+COPY resources/scripts/clean-layer.sh  /usr/bin/clean-layer.sh
+COPY resources/scripts/fix-permissions.sh  /usr/bin/fix-permissions.sh
+
+ # Make clean-layer and fix-permissions executable
+ RUN \
+    chmod a+rwx /usr/bin/clean-layer.sh && \
+    chmod a+rwx /usr/bin/fix-permissions.sh
+
+
+
+# Add VSCode Update 
+RUN \
+    # apt-get update && \
+    apt install software-properties-common apt-transport-https && \
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg  && \
+    install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ && \
+    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list && \
+    rm -f packages.microsoft.gpg && \
+    apt update && \
+    apt install code && \
+    # Cleanup
+    clean-layer.sh
+
+# Install Medical Imaging Pkgs
+RUN add-apt-repository universe && \
+    apt-get update
+
+RUN apt-get update && apt-get install -y openslide-tools python3-openslide python3-opencv libvips libvips-dev netcat && \
+    # Cleanup
+    clean-layer.sh
+
+# # Create Python Virtual Envs
+# WORKDIR /workspace
+
+# RUN mkdir .virtualenvs
+
+# # Create fastai1-wsi venv
+# RUN python3.8 -m venv /workspace/.virtualenvs/fastai1-wsi
+# RUN . /workspace/.virtualenvs/fastai1-wsi/bin/activate && \
+#     pip install torch==1.5.0 torchvision==0.6.0 && \
+#     pip install fastai==1.0.61 && \
+#     pip install ipykernel && \
+#     pip install SlideRunner && \
+#     pip install object-detection-fastai && \
+#     pip install sklearn && \
+#     pip install scikit-image && \
+#     pip install ipywidgets && \
+#     pip install tqdm && \
+#     python -m ipykernel install --user --name=fastai1-wsi --display-name="(venv) fastai1-wsi" && \
+#     jupyter nbextension enable --py widgetsnbextension && \
+#     # Cleanup
+#     clean-layer.sh
+
+# RUN python3.8 -m venv /workspace/.virtualenvs/icevision-dev && \
+#     . /workspace/.virtualenvs/icevision-dev/bin/activate && \
+#     pip install ipykernel && \
+#     pip install ipywidgets && \
+#     python -m ipykernel install --user --name=icevision-dev --display-name="(venv) icevision-dev" && \
+#     jupyter nbextension enable --py widgetsnbextension && \
+#     pip install SlideRunner && \
+#     pip install git+git://github.com/airctic/icevision.git\#egg=icevision[all] --upgrade --upgrade && \
+#     pip install git+git://github.com/airctic/icedata.git --upgrade && \
+#     pip install openmim -q && \
+#     echo "- Installing mmcv" && \
+#     mim install mmcv-full && \
+#     echo "- Installing mmdet" && \
+#     mim install mmdet && \
+#     pip install yolov5-icevision --upgrade && \
+#     # Cleanup
+#     clean-layer.sh
+
+# RUN python3.8 -m venv /workspace/.virtualenvs/fastai-dev && \
+#     . /workspace/.virtualenvs/fastai-dev/bin/activate && \
+#     pip install ipykernel && \
+#     python -m ipykernel install --user --name=fastai-dev --display-name="(venv) fastai-dev" && \
+#     pip install ipywidgets && \
+#     jupyter nbextension enable --py widgetsnbextension && \
+#     pip install fastai && \
+#     # Cleanup
+#     clean-layer.sh
+# # End Python Virtual Envs
+
+# Begin mlworkspace Envs
+
+# Disable conda env activations on startup
+RUN conda config --set auto_activate_base false
+
+# Copy resources into workspace
+COPY resources/tools $RESOURCES_PATH/tools
+COPY resources/tests $RESOURCES_PATH/tests
+COPY resources/tutorials $RESOURCES_PATH/tutorials
+COPY resources/licenses $RESOURCES_PATH/licenses
+COPY resources/reports $RESOURCES_PATH/reports
+
+LABEL \
+    "workspace.flavor"=$WORKSPACE_FLAVOR
+
+# End mlworkspace Envs
+
+# use global option with tini to kill full process groups: https://github.com/krallin/tini#process-group-killing
+ENTRYPOINT ["/tini", "-g", "--"]
+
+CMD ["python", "/resources/docker-entrypoint.py"]
+
+# Port 8080 is the main access port (also includes SSH)
+# Port 5091 is the VNC port
+# Port 3389 is the RDP port
+# Port 8090 is the Jupyter Notebook Server
+# See supervisor.conf for more ports
+
+EXPOSE 8080
+###
