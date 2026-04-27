@@ -22,33 +22,30 @@ WORKDIR $HOME
 COPY resources/scripts/clean-layer.sh  /usr/bin/clean-layer.sh
 COPY resources/scripts/fix-permissions.sh  /usr/bin/fix-permissions.sh
 
- # Make clean-layer and fix-permissions executable
- RUN \
-    chmod a+rwx /usr/bin/clean-layer.sh && \
-    chmod a+rwx /usr/bin/fix-permissions.sh
-
-
-
-# Add VSCode Update 
+# Make clean-layer and fix-permissions executable
 RUN \
-    # apt-get update && \
-    apt install software-properties-common apt-transport-https && \
-    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg  && \
-    install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ && \
-    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list && \
-    rm -f packages.microsoft.gpg && \
-    apt update && \
-    apt install code && \
-    # Cleanup
-    clean-layer.sh
+chmod a+rwx /usr/bin/clean-layer.sh && \
+chmod a+rwx /usr/bin/fix-permissions.sh
+
+# # Add VSCode Update 
+# RUN \
+#     # apt-get update && \
+#     apt install software-properties-common apt-transport-https && \
+#     wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg  && \
+#     install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ && \
+#     echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list && \
+#     rm -f packages.microsoft.gpg && \
+#     apt update && \
+#     apt install code
+# #     # Cleanup
+# #     clean-layer.sh
 
 # Install Medical Imaging Pkgs
 RUN add-apt-repository universe && \
     apt-get update
 
-RUN apt-get update && apt-get install -y openslide-tools python3-openslide python3-opencv libvips libvips-dev netcat && \
-    # Cleanup
-    clean-layer.sh
+RUN apt-get update && apt-get install -y openslide-tools python3-openslide python3-opencv libvips libvips-dev netcat
+
 
 # # Create Python Virtual Envs
 # WORKDIR /workspace
